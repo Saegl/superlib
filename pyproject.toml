@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "superlib"
+version = "0.1.0"
+description = "Websystem for sharing both physical and electronic books"
+authors = ["Alisher Zhubanyshev"]
+license = "GPTv3"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+fastapi = "^0.88.0"
+uvicorn = {extras = ["standard"], version = "^0.20.0"}
+tortoise-orm = {extras = ["asyncpg"], version = "^0.19.2"}
+aerich = "^0.7.1"
+
+[tool.poetry.group.dev.dependencies]
+black = "^22.8.0"
+mypy = "^0.982"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
