@@ -11,7 +11,6 @@ app = FastAPI(
     description="Websystem for sharing both physical and electronic books",
     version="0.1.0",
 )
-app.mount("/", StaticFiles(directory="templates"), name="templates")
 register_tortoise(
     app,
     db_url=APP_URL,
@@ -35,3 +34,13 @@ async def register():
 @app.post("/signin")
 async def signin():
     return {"message": "WIP"}
+
+
+app.mount(
+    "/",
+    StaticFiles(
+        directory="templates",
+        html=True,
+    ),
+    name="templates",
+)
