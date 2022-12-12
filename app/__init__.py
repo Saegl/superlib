@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 from tortoise.contrib.fastapi import register_tortoise
 from app.models import User
 
@@ -10,6 +11,7 @@ app = FastAPI(
     description="Websystem for sharing both physical and electronic books",
     version="0.1.0",
 )
+app.mount("/", StaticFiles(directory="templates"), name="templates")
 register_tortoise(
     app,
     db_url=APP_URL,
