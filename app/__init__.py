@@ -28,7 +28,7 @@ templates = Jinja2Templates(directory="templates")
 
 
 ################### Services
-async def get_user(userid: str = Cookie()) -> User | None:
+async def get_user(userid: str = Cookie(default="-1")) -> User | None:
     try:
         user = await User.get(id=userid)
         return user
