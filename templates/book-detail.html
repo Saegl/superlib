@@ -5,11 +5,12 @@
 {% block content %}
 <div class="container-fluid tm-container-content tm-mt-60">
   <div class="row mb-4">
-    <h2 class="col-12 tm-text-primary">{{ title }}</h2>
+    <h2 class="col-12 tm-text-primary">{{ book.title }}</h2>
   </div>
   <div class="row tm-mb-90">
-    <div class="col-xl-8 col-lg-7 col-md-6 col-sm-12">
-      <img src="/img/img-01-big.jpg" alt="Image" class="img-fluid">
+    <div class="col-xl-8 col-lg-7 col-md-6 col-sm-12 d-flex justify-content-center">
+      <img src="{{ book.image_url }}" alt="Image" class="img-fluid"
+        style="object-position: center; object-fit: none; width: 500px; height: 700px;">
     </div>
     <div class="col-xl-4 col-lg-5 col-md-6 col-sm-12">
       <div class="tm-bg-gray tm-video-details">
@@ -17,6 +18,9 @@
           <a href="#" class="btn btn-primary tm-btn-big">Download</a>
         </div>
         <div class="mb-4 d-flex flex-wrap">
+          <div class="mr-4 mb-2">
+            <span class="tm-text-gray-dark">Date: </span><span class="tm-text-primary">{{ book.created_at }}</span>
+          </div>
           <div class="mr-4 mb-2">
             <span class="tm-text-gray-dark">Dimension: </span><span class="tm-text-primary">1920x1080</span>
           </div>
