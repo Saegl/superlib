@@ -20,7 +20,8 @@
     </h2>
     <div class="col-6 d-flex justify-content-end align-items-center">
       <form action="" class="tm-text-primary">
-        Page <input type="text" value="1" size="1" class="tm-input-paging tm-text-primary"> of 200
+        Page <input type="text" value="{{ current_page }}" size="1" class="tm-input-paging tm-text-primary"> of {{
+        pages_count }}
       </form>
     </div>
   </div>
@@ -44,14 +45,15 @@
   </div> <!-- row -->
   <div class="row tm-mb-90">
     <div class="col-12 d-flex justify-content-between align-items-center tm-paging-col">
-      <a href="/?page={{ current_page - 1 }}"
+      <a href="{% if current_page != 1 %}/?page={{ current_page - 1 }}{% endif %}"
         class="btn btn-primary tm-btn-prev mb-2 {% if current_page == 1 %} disabled {% endif %}">Previous</a>
       <div class="tm-paging d-flex">
         {% for page in pages %}
         <a href="/?page={{page}}" class="tm-paging-link {% if current_page == page %} active {% endif %}">{{ page }}</a>
         {% endfor %}
       </div>
-      <a href="/?page={{ current_page + 1 }}" class="btn btn-primary tm-btn-next">Next Page</a>
+      <a href="{% if current_page != pages_count %}/?page={{ current_page + 1 }}{% endif %}"
+        class="btn btn-primary tm-btn-next {% if current_page == pages_count %} disabled {% endif %}">Next Page</a>
     </div>
   </div>
 </div> <!-- container-fluid, tm-container-content -->

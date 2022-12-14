@@ -61,6 +61,7 @@ async def index(
             "user": user,
             "books": books,
             "current_page": page,
+            "pages_count": pages_count,
             "pages": pages,
         },
     )
