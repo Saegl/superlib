@@ -26,11 +26,18 @@ class Publisher(models.Model):
     name = fields.CharField(max_length=255)
 
 
+class Category(models.Model):
+    id = fields.IntField(pk=True)
+    name = fields.CharField(max_length=255)
+
+
 class Book(models.Model):
     isbn = fields.CharField(pk=True, max_length=255)
 
     author = fields.ForeignKeyField("models.Author")
     title = fields.CharField(max_length=255)
+    description = fields.CharField(max_length=512)
+    category = fields.ForeignKeyField("models.Category")
     image_url = fields.CharField(max_length=255)
     publisher = fields.ForeignKeyField("models.Publisher")
     year = fields.IntField()

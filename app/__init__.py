@@ -9,7 +9,7 @@ from tortoise.exceptions import DoesNotExist, OperationalError
 from tortoise.contrib.fastapi import register_tortoise
 from passlib.context import CryptContext
 
-from app.models import User, Author, Book, Publisher
+from app.models import User, Author, Book, Publisher, Category
 
 ################### Settings
 APP_URL = "postgres://demo:demo@localhost:5432/superlib"
@@ -43,16 +43,29 @@ async def get_user(userid: str = Cookie(default="-1")) -> User | None:
 ################### Routers
 @app.get("/", response_class=HTMLResponse)
 async def index(
-    request: Request, user: User = Depends(get_user), page: int = Query(default=1)
+    request: Request,
+    user: User = Depends(get_user),
+    page: int = Query(default=1),
+    category: str = Query(default="none"),
 ):
     offset = (page - 1) * 16
-    books = await Book.all().offset(offset).limit(16).order_by("-created_at")
-    books_count = await Book.all().count()
+    books = Book.all().offset(offset).limit(16).order_by("-created_at")
+    books_count = Book.all()
+
+    if category != "none":
+        books = books.filter(category__name=category)
+        books_count = books_count.filter(category__name=category)
+
+    books = await books
+    books_count = await books_count.count()
+
     pages_count = math.ceil(books_count / 16)
 
     first_page = max(page - 5, 1)
     last_page = min(first_page + 10, pages_count) + 1
     pages = list(range(first_page, last_page))
+
+    categories = await Category.all()
 
     return templates.TemplateResponse(
         "index.html",
@@ -60,9 +73,13 @@ async def index(
             "request": request,
             "user": user,
             "books": books,
+            # Paginator
             "current_page": page,
             "pages_count": pages_count,
             "pages": pages,
+            # Category
+            "categories": categories,
+            "current_category": category,
         },
     )
 
@@ -83,14 +100,23 @@ async def contact(request: Request, user: User = Depends(get_user)):
 async def book(request: Request, isbn: str, user: User = Depends(get_user)):
     book = await Book.get(isbn=isbn)
     book.views += 1
-    # book.created_at = book.created_at
     await book.save()
+
+    publisher = await book.publisher
+    category = await book.category
+
+    related_books = await Book.filter(category=category).limit(4)
+
     return templates.TemplateResponse(
         "book-detail.html",
         {
             "request": request,
             "user": user,
             "book": book,
+            "book_category": category.name,
+            "book_publisher_name": publisher.name,
+            "book_publisher_id": publisher.id,
+            "related_books": related_books,
         },
     )
 
@@ -155,9 +181,17 @@ async def logout():
 @app.post("/gendata")
 async def gendata():
     from faker import Faker
-    from random import randint
+    from random import randint, choice
 
     fake = Faker()
+
+    categories = [
+        (await Category.get_or_create(name="Classics"))[0],
+        (await Category.get_or_create(name="Fantasy"))[0],
+        (await Category.get_or_create(name="Poetry"))[0],
+        (await Category.get_or_create(name="Biography"))[0],
+        (await Category.get_or_create(name="Essays"))[0],
+    ]
 
     for _ in range(100):
         name, surname = fake.name().split(maxsplit=1)
@@ -178,6 +212,8 @@ async def gendata():
                 isbn=fake.isbn13(),
                 author=author,
                 title=fake.sentence(),
+                description=fake.text(),
+                category=choice(categories),
                 image_url=f"https://placekitten.com/{randint(400, 600)}/{randint(600, 800)}",
                 publisher=publisher,
                 year=fake.year(),
