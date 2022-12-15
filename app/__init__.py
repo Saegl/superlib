@@ -9,7 +9,7 @@ from tortoise.exceptions import DoesNotExist, OperationalError
 from tortoise.contrib.fastapi import register_tortoise
 from passlib.context import CryptContext
 
-from app.models import User, Author, Book, Publisher, Category
+from app.models import User, Author, Book, Publisher, Category, Comment
 
 ################### Settings
 APP_URL = "postgres://demo:demo@localhost:5432/superlib"
@@ -119,6 +119,12 @@ async def book(request: Request, isbn: str, user: User = Depends(get_user)):
     category = await book.category
 
     related_books = await Book.filter(category=category).limit(4)
+    comments = list(await Comment.filter(book=book))
+
+    commenters_names = []
+    for comment in comments:
+        commenter = await comment.commenter
+        commenters_names.append(commenter.name + " " + commenter.surname)
 
     return templates.TemplateResponse(
         "book-detail.html",
@@ -130,8 +136,33 @@ async def book(request: Request, isbn: str, user: User = Depends(get_user)):
             "book_publisher_name": publisher.name,
             "book_publisher_id": publisher.id,
             "related_books": related_books,
+            # Comments
+            "comments": comments,
+            "comments_count": len(comments),
+            "commenters_names": commenters_names,
         },
     )
+
+
+@app.post("/book/{isbn}")
+async def make_comment(
+    request: Request,
+    isbn: str,
+    user: User = Depends(get_user),
+    stars: int = Form(),
+    message: str = Form(),
+):
+    if not user:
+        raise ValueError("Anonyms cannot write comments")
+
+    await Comment.create(
+        commenter=user,
+        book=await Book.get(isbn=isbn),
+        stars=stars,
+        message=message,
+    )
+
+    return RedirectResponse(request.url, status_code=status.HTTP_302_FOUND)
 
 
 @app.get("/signin", response_class=HTMLResponse)

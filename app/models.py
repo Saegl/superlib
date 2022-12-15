@@ -31,6 +31,16 @@ class Category(models.Model):
     name = fields.CharField(max_length=255)
 
 
+class Comment(models.Model):
+    id = fields.IntField(pk=True)
+    commenter = fields.ForeignKeyField("models.User")
+    book = fields.ForeignKeyField("models.Book")
+
+    stars = fields.IntField()
+    message = fields.CharField(max_length=512)
+    created_at = fields.DatetimeField(auto_now_add=True)
+
+
 class Book(models.Model):
     isbn = fields.CharField(pk=True, max_length=255)
 
