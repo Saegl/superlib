@@ -72,6 +72,7 @@ async def index(
         {
             "request": request,
             "user": user,
+            "nav_item": "Books",
             "books": books,
             # Paginator
             "current_page": page,
@@ -86,13 +87,25 @@ async def index(
 
 @app.get("/about", response_class=HTMLResponse)
 async def about(request: Request, user: User = Depends(get_user)):
-    return templates.TemplateResponse("about.html", {"request": request, "user": user})
+    return templates.TemplateResponse(
+        "about.html",
+        {
+            "request": request,
+            "user": user,
+            "nav_item": "About",
+        },
+    )
 
 
 @app.get("/contact", response_class=HTMLResponse)
 async def contact(request: Request, user: User = Depends(get_user)):
     return templates.TemplateResponse(
-        "contact.html", {"request": request, "user": user}
+        "contact.html",
+        {
+            "request": request,
+            "user": user,
+            "nav_item": "Contact",
+        },
     )
 
 
@@ -123,7 +136,13 @@ async def book(request: Request, isbn: str, user: User = Depends(get_user)):
 
 @app.get("/signin", response_class=HTMLResponse)
 async def signin(request: Request):
-    return templates.TemplateResponse("signin.html", {"request": request})
+    return templates.TemplateResponse(
+        "signin.html",
+        {
+            "request": request,
+            "nav_item": "SignIn",
+        },
+    )
 
 
 @app.post("/signin")
@@ -148,7 +167,13 @@ async def signin(
 
 @app.get("/signup", response_class=HTMLResponse)
 async def signup(request: Request):
-    return templates.TemplateResponse("signup.html", {"request": request})
+    return templates.TemplateResponse(
+        "signup.html",
+        {
+            "request": request,
+            "nav_item": "SignUp",
+        },
+    )
 
 
 @app.post("/signup")
