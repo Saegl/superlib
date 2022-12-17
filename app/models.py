@@ -60,6 +60,14 @@ class Feedback(models.Model):
         }[s]
 
 
+class DownloadSource(models.Model):
+    id = fields.IntField(pk=True)
+
+    filetype = fields.CharField(max_length=10)
+    url = fields.CharField(max_length=128)
+    book = fields.ForeignKeyField("models.Book")
+
+
 class Book(models.Model):
     isbn = fields.CharField(pk=True, max_length=255)
 

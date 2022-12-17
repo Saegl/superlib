@@ -11,7 +11,16 @@ from tortoise.exceptions import DoesNotExist, OperationalError
 from tortoise.contrib.fastapi import register_tortoise
 from passlib.context import CryptContext
 
-from app.models import User, Author, Book, Publisher, Category, Comment, Feedback
+from app.models import (
+    User,
+    Author,
+    Book,
+    Publisher,
+    Category,
+    Comment,
+    Feedback,
+    DownloadSource,
+)
 
 ################### Settings
 APP_URL = "postgres://demo:demo@localhost:5432/superlib"
@@ -155,6 +164,8 @@ async def book(request: Request, isbn: str, user: User = Depends(get_user)):
         commenter = await comment.commenter
         commenters_names.append(commenter.name + " " + commenter.surname)
 
+    book_sources = await DownloadSource.filter(book=book)
+
     return templates.TemplateResponse(
         "book-detail.html",
         {
@@ -164,6 +175,7 @@ async def book(request: Request, isbn: str, user: User = Depends(get_user)):
             "book_category": category.name,
             "book_publisher_name": publisher.name,
             "book_publisher_id": publisher.id,
+            "book_sources": book_sources,
             "related_books": related_books,
             # Comments
             "comments": comments,
@@ -278,6 +290,17 @@ async def gendata():
         (await Category.get_or_create(name="Essays"))[0],
     ]
 
+    sources = [
+        {
+            "filetype": "pdf",
+            "url": "https://github.com/asdfjkl/neural_network_chess/releases/download/v1.5/Neural_Networks_For_Chess.pdf",
+        },
+        {
+            "filetype": "epub",
+            "url": "https://github.com/asdfjkl/neural_network_chess/releases/download/v1.5/Neural_Networks_For_Chess.pdf",
+        },
+    ]
+
     for _ in range(100):
         name, surname = fake.name().split(maxsplit=1)
         author = await Author.create(
@@ -293,7 +316,7 @@ async def gendata():
         )
 
         for _ in range(10):
-            await Book.create(
+            book = await Book.create(
                 isbn=fake.isbn13(),
                 author=author,
                 title=fake.sentence(),
@@ -305,6 +328,13 @@ async def gendata():
                 pages=randint(50, 1000),
                 views=0,
             )
+
+            for source in sources:
+                await DownloadSource.create(
+                    filetype=source["filetype"],
+                    url=source["url"],
+                    book=book,
+                )
 
     return {"status": "Success"}
 
