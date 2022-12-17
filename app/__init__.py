@@ -44,7 +44,7 @@ templates = Jinja2Templates(directory="templates")
 async def get_user(userid: str = Cookie(default="-1")) -> User | None:
     try:
         query = User.get(id=userid)
-        print(query.sql())
+        # print(query.sql())
         user = await query
         return user
     except DoesNotExist:
@@ -81,8 +81,8 @@ async def index(
 
     books_count = books_count.count()
 
-    print(books.sql())
-    print(books_count.sql())
+    # print(books.sql())
+    # print(books_count.sql())
 
     books = await books
     books_count = await books_count
@@ -95,7 +95,7 @@ async def index(
 
     categories_query = Category.all()
     categories = await categories_query
-    print(categories_query.sql())
+    # print(categories_query.sql())
 
     return templates.TemplateResponse(
         "index.html",
@@ -158,7 +158,7 @@ async def send_feedback(
 
 @app.get("/book/{isbn}", response_class=HTMLResponse)
 async def book(request: Request, isbn: str, user: User = Depends(get_user)):
-    print(Book.get(isbn=isbn).sql())
+    # print(Book.get(isbn=isbn).sql())
     book = await Book.get(isbn=isbn)
     book.views += 1
     await book.save()
