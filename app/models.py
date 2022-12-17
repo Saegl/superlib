@@ -3,6 +3,7 @@ from tortoise import fields, models
 
 class User(models.Model):
     id = fields.UUIDField(pk=True)
+    admin = fields.BooleanField()
 
     name = fields.CharField(max_length=255)
     surname = fields.CharField(max_length=255)
@@ -10,6 +11,12 @@ class User(models.Model):
 
     email = fields.CharField(max_length=255)
     password_hash = fields.CharField(max_length=255)
+
+
+class Notification(models.Model):
+    id = fields.IntField(pk=True)
+    user = fields.ForeignKeyField("models.User")
+    message = fields.CharField(max_length=255)
 
 
 class Author(models.Model):
@@ -33,6 +40,7 @@ class Category(models.Model):
 
 class Comment(models.Model):
     id = fields.IntField(pk=True)
+    banned = fields.BooleanField(default=False)
     commenter = fields.ForeignKeyField("models.User")
     book = fields.ForeignKeyField("models.Book")
 

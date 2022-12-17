@@ -206,6 +206,38 @@ async def make_comment(
     return RedirectResponse(request.url, status_code=status.HTTP_302_FOUND)
 
 
+@app.post("/ban")
+async def ban_comment(
+    user: User = Depends(get_user),
+    comment_id: str = Query(),
+    isbn: str = Query(),
+):
+    if not user.admin:
+        raise ValueError("Only admin can ban comments")
+
+    comment = await Comment.get(id=comment_id)
+    comment.banned = True
+    await comment.save()
+
+    return RedirectResponse(f"/book/{isbn}", status_code=status.HTTP_302_FOUND)
+
+
+@app.post("/unban")
+async def unban_comment(
+    user: User = Depends(get_user),
+    comment_id: str = Query(),
+    isbn: str = Query(),
+):
+    if not user.admin:
+        raise ValueError("Only admin can unban comments")
+
+    comment = await Comment.get(id=comment_id)
+    comment.banned = False
+    await comment.save()
+
+    return RedirectResponse(f"/book/{isbn}", status_code=status.HTTP_302_FOUND)
+
+
 @app.get("/signin", response_class=HTMLResponse)
 async def signin(request: Request):
     return templates.TemplateResponse(
@@ -257,6 +289,7 @@ async def signin(
     bio: str = Form(),
 ):
     user = await User.create(
+        admin=False,
         name=name,
         surname=surname,
         email=email,
