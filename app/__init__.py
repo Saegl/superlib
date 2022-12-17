@@ -386,6 +386,97 @@ async def gendata():
     return {"status": "Success"}
 
 
+@app.post("/add_good_books")
+async def add_good_books():
+    from faker import Faker
+    from random import randint, choice
+
+    fake = Faker()
+
+    category = await Category.create(name="Science")
+    publisher = await Publisher.create(name="Alisher Publish")
+
+    name, surname = fake.name().split(maxsplit=1)
+    author = await Author.create(
+        name=name,
+        surname=surname,
+        bio=fake.text(),
+        email=fake.email(),
+        password_hash="1234",
+    )
+
+    books_data = [
+        {
+            "title": "Algorithms Design Manual",
+            "image_url": "/custom_books/algo_design_manual.jpg",
+        },
+        {
+            "title": "C programming",
+            "image_url": "/custom_books/c_programming.jpg",
+        },
+        {
+            "title": "Fluent Python",
+            "image_url": "/custom_books/fluent_python.jpg",
+        },
+        {
+            "title": "Introduction to algorithms",
+            "image_url": "/custom_books/introduction_to_alogorithms.jpg",
+        },
+        {
+            "title": "Learning Go",
+            "image_url": "/custom_books/learning_go.jpg",
+        },
+        {
+            "title": "Microservices",
+            "image_url": "/custom_books/microservices.jpg",
+        },
+        {
+            "title": "Programming rust",
+            "image_url": "/custom_books/programming_rust.jpg",
+        },
+        {
+            "title": "Python distilled",
+            "image_url": "/custom_books/python_distilled.jpg",
+        },
+        {
+            "title": "Serverless systems",
+            "image_url": "/custom_books/serverless_systems.jpg",
+        },
+        {
+            "title": "System design Interview",
+            "image_url": "/custom_books/system_design_interview.jpg",
+        },
+        {
+            "title": "The Linux API",
+            "image_url": "/custom_books/the_linux_api.jpg",
+        },
+    ]
+
+    for data in books_data:
+        book = await Book.create(
+            isbn=fake.isbn13(),
+            author=author,
+            title=data["title"],
+            description=fake.text(),
+            category=category,
+            image_url=data["image_url"],
+            publisher=publisher,
+            year=fake.year(),
+            pages=randint(50, 1000),
+            views=0,
+        )
+
+        await DownloadSource.create(
+            book=book,
+            filetype="pdf",
+            url=(
+                "https://github.com/"
+                "asdfjkl/neural_network_chess/releases/download/v1.5/"
+                "Neural_Networks_For_Chess.pdf"
+            ),
+        )
+
+
 app.mount(
     "/",
     StaticFiles(
