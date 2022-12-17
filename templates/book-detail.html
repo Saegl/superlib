@@ -113,6 +113,12 @@
       <h3 class="tm-text-gray-dark">{{ commenters_names[i] }} says:</h3>
       <p>{{ comments[i].message }}</p>
       <p>{{ comments[i].created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+      {% if user.id == commenters_ids[i] %}
+      <form method="POST"
+        action="/delete?comment_id={{comments[i].id}}&commenter_id={{commenters_ids[i]}}&isbn={{book.isbn}}">
+        <button>Delete</button>
+      </form>
+      {% endif %}
       {% if user.admin %}
       {% if comments[i].banned %}
       <form method="POST" action="/unban?comment_id={{ comments[i].id }}&isbn={{book.isbn}}">

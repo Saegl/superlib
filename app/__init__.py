@@ -227,9 +227,11 @@ async def book(
     comments = list(await comments_query)
 
     commenters_names = []
+    commenters_ids = []
     for comment in comments:
         commenter = await comment.commenter
         commenters_names.append(commenter.name + " " + commenter.surname)
+        commenters_ids.append(commenter.id)
 
     book_sources = await DownloadSource.filter(book=book)
 
@@ -248,6 +250,7 @@ async def book(
             "comments": comments,
             "comments_count": len(comments),
             "commenters_names": commenters_names,
+            "commenters_ids": commenters_ids,
         }
         | notifications,
     )
@@ -279,6 +282,23 @@ async def like_book(user: User | None = Depends(get_user), isbn: str = Query()):
     if user:
         await user.likes.add(await Book.get(isbn=isbn))
         await user.save()
+    return RedirectResponse(f"/book/{isbn}", status_code=status.HTTP_302_FOUND)
+
+
+@app.post("/delete")
+async def delete_comment(
+    user: User | None = Depends(get_user),
+    comment_id: int = Query(),
+    commenter_id: str = Query(),
+    isbn: str = Query(),
+):
+    if not (user and str(user.id) == commenter_id):
+        print(user.id)
+        print(commenter_id)
+        raise ValueError("You cannot delete other people comments")
+
+    comment = await Comment.get(id=comment_id)
+    await comment.delete()
     return RedirectResponse(f"/book/{isbn}", status_code=status.HTTP_302_FOUND)
 
 
