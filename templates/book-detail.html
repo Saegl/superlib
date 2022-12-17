@@ -37,6 +37,9 @@
           <h3 class="tm-text-gray-dark mb-3">Publisher</h3>
           <a href="#" class="tm-text-primary mr-4 mb-2 d-inline-block">{{ book_publisher_name }}</a>
         </div>
+        <form method="POST" action="/like?isbn={{ book.isbn }}">
+          <button class="btn btn-secondary">Like this book</button>
+        </form>
       </div>
     </div>
   </div>

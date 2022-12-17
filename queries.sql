@@ -23,3 +23,15 @@ ALTER TABLE "comment" ADD banned boolean DEFAULT false;
 
 -- Admins view
 CREATE VIEW Admins AS SELECT "user"."name", "user"."surname" FROM "user" WHERE admin is true;
+
+
+-- Subqueries for intersting books
+SELECT 
+	"year","image_url","pages","author_id","created_at",
+	"description","category_id","publisher_id","isbn","views","title"
+FROM "book" WHERE "category_id" IN (
+	SELECT "book"."category_id" "0"
+	FROM "book"
+	LEFT OUTER JOIN "user_book" ON "book"."isbn"="user_book"."book_id"
+	WHERE "user_book"."user_id"='025d62af-e510-47f6-a9ef-6e9078917f9e'
+);

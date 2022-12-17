@@ -28,6 +28,9 @@
     </h2>
     <div class="col-6 d-flex justify-content-end align-items-center">
       <div class="mx-3">
+        <form method="GET" action="/interesting">
+          <button class="btn">Show interesting</button>
+        </form>
         <script>
           let current_page = '{{ current_page }}'
           function on_select_change(value) {

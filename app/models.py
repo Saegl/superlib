@@ -12,6 +12,8 @@ class User(models.Model):
     email = fields.CharField(max_length=255)
     password_hash = fields.CharField(max_length=255)
 
+    likes = fields.ManyToManyField("models.Book")
+
 
 class Notification(models.Model):
     id = fields.IntField(pk=True)

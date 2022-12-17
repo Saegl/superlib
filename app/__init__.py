@@ -126,6 +126,33 @@ async def index(
     )
 
 
+@app.get("/interesting")
+async def show_interesting(
+    request: Request,
+    user: User | None = Depends(get_user),
+    notifications: dict = Depends(get_notifications),
+):
+    assert user
+    liked_books = await user.likes.all().values_list("category_id", flat=True)
+    similar_books = Book.filter(category_id__in=liked_books)
+    # print(user.likes.all().values_list("category_id", flat=True).sql())
+    # print(similar_books.sql())
+    # print(await similar_books)
+    # print(dir(liked_books))
+
+    return templates.TemplateResponse(
+        "index.html",
+        {
+            "request": request,
+            "user": user,
+            "nav_item": "Books",
+            "current_page": 0,
+            "books": await similar_books,
+        }
+        | notifications,
+    )
+
+
 @app.get("/about", response_class=HTMLResponse)
 async def about(
     request: Request,
@@ -245,6 +272,14 @@ async def make_comment(
     )
 
     return RedirectResponse(request.url, status_code=status.HTTP_302_FOUND)
+
+
+@app.post("/like")
+async def like_book(user: User | None = Depends(get_user), isbn: str = Query()):
+    if user:
+        await user.likes.add(await Book.get(isbn=isbn))
+        await user.save()
+    return RedirectResponse(f"/book/{isbn}", status_code=status.HTTP_302_FOUND)
 
 
 @app.post("/ban")
