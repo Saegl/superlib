@@ -69,8 +69,9 @@
     <h2 class="col-12 tm-text-primary">
       Comments
     </h2>
+    {% if user %}
+
     <div class="tm-bg-gray tm-video-details col-xl-8 col-lg-7 col-md-6 col-sm-12 m-3">
-      <!-- <p>⭐⭐⭐⭐⭐</p> -->
       <h3 class="tm-text-gray-dark">Write your comment here:</h3>
       <form id="contact-form" action="" method="POST" class="tm-contact-form my-3">
         <div class="form-group">
@@ -93,6 +94,16 @@
         </div>
       </form>
     </div>
+
+    {% else %}
+
+    <div class="tm-bg-gray tm-video-details col-xl-8 col-lg-7 col-md-6 col-sm-12 m-3">
+      <h3 class="tm-text-gray-dark">Anonyms cannot write comments <a href="/signup">SignUp</a> or <a
+          href="/signin">SignIn</a></h3>
+    </div>
+
+    {% endif %}
+
     {% for i in range(comments_count) %}
     <div class="tm-bg-gray tm-video-details col-xl-8 col-lg-7 col-md-6 col-sm-12 m-3">
       <p>{% for _ in range(comments[i].stars) %}⭐{% endfor %}</p>
