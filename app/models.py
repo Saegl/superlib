@@ -41,6 +41,25 @@ class Comment(models.Model):
     created_at = fields.DatetimeField(auto_now_add=True)
 
 
+class Feedback(models.Model):
+    id = fields.IntField(pk=True)
+
+    title = fields.CharField(max_length=255)
+    email = fields.CharField(max_length=255)
+    issue_type = fields.IntField()
+    message = fields.CharField(max_length=255)
+
+    @staticmethod
+    def issue_index(s: str):
+        return {
+            "-": 0,
+            "new_publisher": 1,
+            "new_book": 2,
+            "fix_bug": 3,
+            "fix_typo": 4,
+        }[s]
+
+
 class Book(models.Model):
     isbn = fields.CharField(pk=True, max_length=255)
 

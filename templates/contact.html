@@ -12,17 +12,18 @@
       <h2 class="tm-text-primary mb-5">Contact Page</h2>
       <form id="contact-form" action="" method="POST" class="tm-contact-form mx-auto">
         <div class="form-group">
-          <input type="text" name="name" class="form-control rounded-0" placeholder="Name" required />
+          <input type="text" name="title" class="form-control rounded-0" placeholder="Title" required />
         </div>
         <div class="form-group">
           <input type="email" name="email" class="form-control rounded-0" placeholder="Email" required />
         </div>
         <div class="form-group">
-          <select class="form-control" id="contact-select" name="inquiry">
-            <option value="-">Subject</option>
-            <option value="sales">Sales &amp; Marketing</option>
-            <option value="creative">Creative Design</option>
-            <option value="uiux">UI / UX</option>
+          <select class="form-control" id="issue_type" name="issue_type">
+            <option value="-">Issue type</option>
+            <option value="new_publisher">Add publisher</option>
+            <option value="new_book">Add book</option>
+            <option value="fix_bug">Fix bug</option>
+            <option value="fix_typo">Fix Typo</option>
           </select>
         </div>
         <div class="form-group">

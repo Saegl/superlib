@@ -9,7 +9,7 @@ from tortoise.exceptions import DoesNotExist, OperationalError
 from tortoise.contrib.fastapi import register_tortoise
 from passlib.context import CryptContext
 
-from app.models import User, Author, Book, Publisher, Category, Comment
+from app.models import User, Author, Book, Publisher, Category, Comment, Feedback
 
 ################### Settings
 APP_URL = "postgres://demo:demo@localhost:5432/superlib"
@@ -107,6 +107,23 @@ async def contact(request: Request, user: User = Depends(get_user)):
             "nav_item": "Contact",
         },
     )
+
+
+@app.post("/contact")
+async def send_feedback(
+    request: Request,
+    title: str = Form(),
+    email: str = Form(),
+    issue_type: str = Form(),
+    message: str = Form(),
+):
+    await Feedback.create(
+        title=title,
+        email=email,
+        issue_type=Feedback.issue_index(issue_type),
+        message=message,
+    )
+    return templates.TemplateResponse("feedback.html", {"request": request})
 
 
 @app.get("/book/{isbn}", response_class=HTMLResponse)
