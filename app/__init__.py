@@ -1,10 +1,12 @@
 import math
+from functools import reduce
 
 from fastapi import FastAPI, Request, Form, status, Cookie, Depends, Query
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
+from tortoise.expressions import Q
 from tortoise.exceptions import DoesNotExist, OperationalError
 from tortoise.contrib.fastapi import register_tortoise
 from passlib.context import CryptContext
@@ -46,11 +48,21 @@ async def index(
     request: Request,
     user: User = Depends(get_user),
     page: int = Query(default=1),
+    query: str = Query(default=""),
     category: str = Query(default="none"),
 ):
     offset = (page - 1) * 16
     books = Book.all().offset(offset).limit(16).order_by("-created_at")
     books_count = Book.all()
+
+    if query:
+        qs = []
+        for word in query.split("-"):
+            qs.append(Q(title__icontains=word))
+
+        filters = reduce(lambda a, b: a | b, qs)
+        books = books.filter(filters)
+        books_count = books_count.filter(filters)
 
     if category != "none":
         books = books.filter(category__name=category)
