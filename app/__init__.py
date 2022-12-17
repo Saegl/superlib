@@ -20,6 +20,7 @@ from app.models import (
     Comment,
     Feedback,
     DownloadSource,
+    Notification,
 )
 
 ################### Settings
@@ -53,11 +54,20 @@ async def get_user(userid: str = Cookie(default="-1")) -> User | None:
         pass
 
 
+async def get_notifications(user: User | None = Depends(get_user)) -> dict:
+    if user:
+        notifications = await Notification.filter(user=user)
+        return {"notifications": notifications}
+    else:
+        return {}
+
+
 ################### Routers
 @app.get("/", response_class=HTMLResponse)
 async def index(
     request: Request,
-    user: User = Depends(get_user),
+    user: User | None = Depends(get_user),
+    notifications: dict = Depends(get_notifications),
     page: int = Query(default=1),
     query: str = Query(default=""),
     category: str = Query(default="none"),
@@ -111,31 +121,42 @@ async def index(
             # Category
             "categories": categories,
             "current_category": category,
-        },
+        }
+        | notifications,
     )
 
 
 @app.get("/about", response_class=HTMLResponse)
-async def about(request: Request, user: User = Depends(get_user)):
+async def about(
+    request: Request,
+    user: User = Depends(get_user),
+    notifications: dict = Depends(get_notifications),
+):
     return templates.TemplateResponse(
         "about.html",
         {
             "request": request,
             "user": user,
             "nav_item": "About",
-        },
+        }
+        | notifications,
     )
 
 
 @app.get("/contact", response_class=HTMLResponse)
-async def contact(request: Request, user: User = Depends(get_user)):
+async def contact(
+    request: Request,
+    user: User = Depends(get_user),
+    notifications: dict = Depends(get_notifications),
+):
     return templates.TemplateResponse(
         "contact.html",
         {
             "request": request,
             "user": user,
             "nav_item": "Contact",
-        },
+        }
+        | notifications,
     )
 
 
@@ -157,7 +178,12 @@ async def send_feedback(
 
 
 @app.get("/book/{isbn}", response_class=HTMLResponse)
-async def book(request: Request, isbn: str, user: User = Depends(get_user)):
+async def book(
+    request: Request,
+    isbn: str,
+    user: User = Depends(get_user),
+    notifications: dict = Depends(get_notifications),
+):
     # print(Book.get(isbn=isbn).sql())
     book = await Book.get(isbn=isbn)
     book.views += 1
@@ -195,7 +221,8 @@ async def book(request: Request, isbn: str, user: User = Depends(get_user)):
             "comments": comments,
             "comments_count": len(comments),
             "commenters_names": commenters_names,
-        },
+        }
+        | notifications,
     )
 
 
@@ -475,6 +502,12 @@ async def add_good_books():
                 "Neural_Networks_For_Chess.pdf"
             ),
         )
+
+
+@app.get("/test")
+async def test():
+    query = Category.exists(name="111")
+    return {"query": query.sql()}
 
 
 app.mount(

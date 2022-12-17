@@ -44,7 +44,10 @@
           </li>
 
           <select class="form-control" id="contact-select">
-            <option>Notifications (0)</option>
+            <option>Notifications</option>
+            {% for notification in notifications %}
+            <option>{{ notification.message }}</option>
+            {% endfor %}
           </select>
 
           {% else %}
