@@ -35,13 +35,17 @@
 
           {% if user %}
 
-          <li class="nav-item">
+          <!-- <li class="nav-item">
             <a class="nav-link nav-link-3 {% if nav_item == 'Profile' %}active{%endif%}" href="/profile">Profile</a>
-          </li>
+          </li> -->
 
           <li class="nav-item">
             <a class="nav-link nav-link-3 {% if nav_item == 'Logout' %}active{%endif%}" href="/logout">Logout</a>
           </li>
+
+          <select class="form-control" id="contact-select">
+            <option>Notifications (0)</option>
+          </select>
 
           {% else %}
 
@@ -53,16 +57,6 @@
           </li>
 
           {% endif %}
-
-          <select class="form-control" id="contact-select">
-            <!-- <option value="none">none</option> -->
-            <option>Notifications (0)</option>
-            <!-- <option value="1">You message on book {} have been banned</option> -->
-            <!-- {% for category in categories %} -->
-            <!-- <option value="{{ category.name }}" {% if category.name==current_category %}selected="selected" {% endif %}> -->
-            <!-- {{ category.name }}</option> -->
-            <!-- {% endfor %} -->
-          </select>
 
         </ul>
       </div>
