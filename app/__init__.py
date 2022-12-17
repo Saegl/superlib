@@ -43,7 +43,9 @@ templates = Jinja2Templates(directory="templates")
 ################### Services
 async def get_user(userid: str = Cookie(default="-1")) -> User | None:
     try:
-        user = await User.get(id=userid)
+        query = User.get(id=userid)
+        print(query.sql())
+        user = await query
         return user
     except DoesNotExist:
         pass
@@ -77,8 +79,13 @@ async def index(
         books = books.filter(category__name=category)
         books_count = books_count.filter(category__name=category)
 
+    books_count = books_count.count()
+
+    print(books.sql())
+    print(books_count.sql())
+
     books = await books
-    books_count = await books_count.count()
+    books_count = await books_count
 
     pages_count = math.ceil(books_count / 16)
 
@@ -86,7 +93,9 @@ async def index(
     last_page = min(first_page + 10, pages_count) + 1
     pages = list(range(first_page, last_page))
 
-    categories = await Category.all()
+    categories_query = Category.all()
+    categories = await categories_query
+    print(categories_query.sql())
 
     return templates.TemplateResponse(
         "index.html",
@@ -149,6 +158,7 @@ async def send_feedback(
 
 @app.get("/book/{isbn}", response_class=HTMLResponse)
 async def book(request: Request, isbn: str, user: User = Depends(get_user)):
+    print(Book.get(isbn=isbn).sql())
     book = await Book.get(isbn=isbn)
     book.views += 1
     await book.save()
@@ -157,7 +167,11 @@ async def book(request: Request, isbn: str, user: User = Depends(get_user)):
     category = await book.category
 
     related_books = await Book.filter(category=category).limit(4)
-    comments = list(await Comment.filter(book=book))
+    comments_query = Comment.filter(book=book)
+    if (not user) or (user and not user.admin):
+        comments_query = comments_query.filter(banned=False)
+
+    comments = list(await comments_query)
 
     commenters_names = []
     for comment in comments:
